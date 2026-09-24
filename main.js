@@ -81,7 +81,10 @@ function generateAndDisplayVariations() {
 }
 
 function validateEmail(email) {
-    var re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    // Local part: dot-separated atoms (no leading, trailing or double dots),
+    // "+" allowed for tags. Domain: dot-separated labels that don't start or
+    // end with "-", followed by a TLD of 2+ letters (e.g. ".photography").
+    var re = /^[a-zA-Z0-9_%+-]+(\.[a-zA-Z0-9_%+-]+)*@([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
     return re.test(email);
 }
 
