@@ -4,7 +4,8 @@ body {
   background-color: #f4f4f4;
 }
 
-h2 {
+h1,
+.subtitle {
   text-align: center;
   color: #333;
 }
@@ -80,4 +81,9 @@ td {
 
 .controls button {
   flex-grow: 1;
+}
+
+#errorMsg {
+  color: #b00020;
+  font-weight: bold;
 }

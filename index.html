@@ -5,29 +5,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Email Variations Generator</title>
+    <meta name="description" content="Generate Gmail dot-variations of your email address (e.g. j.ohn.doe@gmail.com) and export them to Excel.">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <h2>Email Variations Generator</h2>
-    <h2> FEA in the url is an abbr for : <a href="https://fadyehabamer.com"> Fady Ehab Amer </a> </h3>
+    <h1>Email Variations Generator</h1>
+    <p class="subtitle">FEA in the URL is an abbreviation for: <a href="https://fadyehabamer.com">Fady Ehab Amer</a></p>
     <div>
-        <label for="emailInput">Enter Email:</label>
-        <input type="email" id="emailInput">
-        <section class="controls">
-            <button onclick="generateAndDisplayVariations()">Generate Variations</button>
-            <button id="exportBtn" onclick="exportToExcel()" disabled>Export to Excel</button>
-        </section>
+        <form novalidate onsubmit="event.preventDefault(); generateAndDisplayVariations();">
+            <label for="emailInput">Enter Email:</label>
+            <input type="email" id="emailInput" autocomplete="email" aria-describedby="errorMsg">
+            <section class="controls">
+                <button type="submit">Generate Variations</button>
+                <button type="button" id="exportBtn" onclick="exportToExcel()" disabled>Export to Excel</button>
+            </section>
+        </form>
     </div>
 
-    <span id="errorMsg"></span>
+    <p id="errorMsg" role="alert"></p>
+    <p id="statusMsg" role="status"></p>
 
     <table id="results">
         <!-- The results will be displayed here in table format -->
     </table>
 
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
     <script src="main.js"></script>
 </body>
 
