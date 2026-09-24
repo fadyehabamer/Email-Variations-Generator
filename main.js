@@ -4,13 +4,16 @@ function generateEmailVariations(email) {
     // Gmail ignores dots in the username, so start from the dot-free form.
     // Otherwise existing dots get combined with inserted ones and produce
     // invalid addresses such as "john..doe@gmail.com".
-    localPart = localPart.replace(/\./g, "");
+    // A "+tag" suffix is kept as-is; only the username before it is varied.
+    let plusIndex = localPart.indexOf("+");
+    let tag = plusIndex === -1 ? "" : localPart.slice(plusIndex);
+    localPart = (plusIndex === -1 ? localPart : localPart.slice(0, plusIndex)).replace(/\./g, "");
 
     let variations = new Set();
 
     function addDots(prefix, remaining) {
         if (!remaining) {
-            variations.add(prefix + "@" + domain);
+            variations.add(prefix + tag + "@" + domain);
             return;
         }
 
