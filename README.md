@@ -18,7 +18,13 @@ address was shared.
 - A username of *n* characters has 2^(n-1) variations. The output is capped at
   8,192 (every variation for usernames up to 14 characters) to keep the page
   responsive; the page tells you when results are truncated.
-- Results can be exported to an `.xlsx` file (via [SheetJS](https://sheetjs.com/)).
+- **Plus-tag mode:** choose "Plus tags" to get one address per tag, e.g.
+  `johndoe+newsletter@gmail.com`, `johndoe+shopping@gmail.com`. Enter your own
+  tags (comma or space separated; letters, numbers, `-`, `_` and `%`). Any
+  existing `+tag` in the input is replaced.
+- Results can be exported to an `.xlsx` file (via [SheetJS](https://sheetjs.com/))
+  or a `.csv` file, or copied to the clipboard (one address per line) with
+  **Copy All**.
 
 > Dot-insensitivity is a Gmail / Google Workspace behavior. Most other
 > providers treat dotted addresses as different mailboxes.

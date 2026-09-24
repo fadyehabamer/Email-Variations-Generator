@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Email Variations Generator</title>
-    <meta name="description" content="Generate Gmail dot-variations of your email address (e.g. j.ohn.doe@gmail.com) and export them to Excel.">
+    <meta name="description" content="Generate Gmail dot or plus-tag variations of your email address (e.g. j.ohn.doe@gmail.com or johndoe+news@gmail.com) and export them to Excel or CSV.">
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -16,15 +16,28 @@
         <form novalidate onsubmit="event.preventDefault(); generateAndDisplayVariations();">
             <label for="emailInput">Enter Email:</label>
             <input type="email" id="emailInput" autocomplete="email" aria-describedby="errorMsg">
+            <fieldset class="mode">
+                <legend>Variation type</legend>
+                <label><input type="radio" name="mode" value="dots" checked onchange="updateModeFields()"> Dots (j.ohn.doe@)</label>
+                <label><input type="radio" name="mode" value="plus" onchange="updateModeFields()"> Plus tags (johndoe+tag@)</label>
+            </fieldset>
+            <section id="tagsField" hidden>
+                <label for="tagsInput">Tags (comma or space separated):</label>
+                <input type="text" id="tagsInput" value="newsletter, shopping, social, work, test" spellcheck="false" aria-describedby="tagsHint errorMsg">
+                <small id="tagsHint">Letters, numbers, "-", "_" and "%" only.</small>
+            </section>
             <section class="controls">
                 <button type="submit">Generate Variations</button>
                 <button type="button" id="exportBtn" onclick="exportToExcel()" disabled>Export to Excel</button>
+                <button type="button" id="exportCsvBtn" onclick="exportToCsv()" disabled>Export to CSV</button>
+                <button type="button" id="copyAllBtn" onclick="copyAllVariations()" disabled>Copy All</button>
             </section>
         </form>
     </div>
 
     <p id="errorMsg" role="alert"></p>
     <p id="statusMsg" role="status"></p>
+    <p id="copyMsg" role="status"></p>
 
     <table id="results">
         <!-- The results will be displayed here in table format -->

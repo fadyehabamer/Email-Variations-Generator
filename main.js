@@ -44,6 +44,25 @@ function generateEmailVariations(email, limit = MAX_VARIATIONS) {
     return Array.from(variations);
 }
 
+function parseTags(value) {
+    return value.split(/[\s,]+/).filter(Boolean);
+}
+
+function generatePlusVariations(email, tags, limit = MAX_VARIATIONS) {
+    let [localPart, domain] = email.split("@");
+    let base = localPart.split("+")[0];
+    return Array.from(new Set(tags)).slice(0, limit).map(tag => `${base}+${tag}@${domain}`);
+}
+
+function selectedMode() {
+    let checked = document.querySelector('input[name="mode"]:checked');
+    return checked ? checked.value : "dots";
+}
+
+function updateModeFields() {
+    document.getElementById('tagsField').hidden = selectedMode() !== "plus";
+}
+
 // Email and variations currently shown in the table (used by the export).
 let currentEmail = '';
 let currentVariations = [];
@@ -54,6 +73,8 @@ function generateAndDisplayVariations() {
     let errorMsg = document.getElementById('errorMsg');
     let statusMsg = document.getElementById('statusMsg');
     let exportBtn = document.getElementById('exportBtn');
+    let exportCsvBtn = document.getElementById('exportCsvBtn');
+    let copyAllBtn = document.getElementById('copyAllBtn');
 
     
     // Email validation
@@ -67,8 +88,28 @@ function generateAndDisplayVariations() {
     emailInput.removeAttribute('aria-invalid');
 
     let resultsTable = document.getElementById('results');
-    let validEmails = generateEmailVariations(email);
-    let total = countEmailVariations(email);
+    let validEmails;
+    let total;
+    let tagsInput = document.getElementById('tagsInput');
+    tagsInput.removeAttribute('aria-invalid');
+
+    if (selectedMode() === "plus") {
+        let tags = parseTags(tagsInput.value);
+        let invalidTags = tags.filter(tag => !/^[a-zA-Z0-9_%-]+$/.test(tag));
+        if (!tags.length || invalidTags.length) {
+            errorMsg.textContent = tags.length
+                ? `Invalid tag(s): ${invalidTags.join(", ")}. Use letters, numbers, "-", "_" or "%".`
+                : "Please enter at least one tag.";
+            tagsInput.setAttribute('aria-invalid', 'true');
+            tagsInput.focus();
+            return;
+        }
+        validEmails = generatePlusVariations(email, tags);
+        total = new Set(tags).size;
+    } else {
+        validEmails = generateEmailVariations(email);
+        total = countEmailVariations(email);
+    }
     statusMsg.textContent = total > validEmails.length
         ? `Showing the first ${validEmails.length.toLocaleString()} of ${total.toLocaleString()} possible variations.`
         : `${validEmails.length.toLocaleString()} variations generated.`;
@@ -90,6 +131,9 @@ function generateAndDisplayVariations() {
 
     // Enable the export button
     exportBtn.disabled = false;
+    exportCsvBtn.disabled = false;
+    copyAllBtn.disabled = false;
+    document.getElementById('copyMsg').textContent = '';
 
     currentEmail = email;
     currentVariations = validEmails;
@@ -120,4 +164,58 @@ function exportToExcel() {
     let ws = XLSX.utils.aoa_to_sheet(data);
     XLSX.utils.book_append_sheet(wb, ws, ws_name);
     XLSX.writeFile(wb, "email_variations.xlsx");
+}
+
+function csvField(value) {
+    let text = String(value);
+    return /[",\r\n]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
+}
+
+function buildCsv(email, variations) {
+    let rows = [["Main Email", "New Email"]];
+    variations.forEach(variation => rows.push([email, variation]));
+    return rows.map(row => row.map(csvField).join(",")).join("\r\n") + "\r\n";
+}
+
+async function writeClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return;
+    }
+    let area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    let ok = document.execCommand("copy");
+    area.remove();
+    if (!ok) throw new Error("Copy command was rejected");
+}
+
+async function copyAllVariations() {
+    if (!currentVariations.length) return;
+    let copyMsg = document.getElementById('copyMsg');
+    try {
+        await writeClipboard(currentVariations.join("\n"));
+        copyMsg.textContent = `Copied ${currentVariations.length.toLocaleString()} variations to the clipboard.`;
+    } catch (err) {
+        console.error(err);
+        copyMsg.textContent = "Couldn't copy to the clipboard. Try the CSV export instead.";
+    }
+}
+
+function exportToCsv() {
+    if (!currentVariations.length) return;
+
+    let blob = new Blob([buildCsv(currentEmail, currentVariations)], { type: "text/csv;charset=utf-8" });
+    let url = URL.createObjectURL(blob);
+    let link = document.createElement("a");
+    link.href = url;
+    link.download = "email_variations.csv";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 0);
 }
