@@ -1,6 +1,11 @@
 function generateEmailVariations(email) {
     let [localPart, domain] = email.split("@");
 
+    // Gmail ignores dots in the username, so start from the dot-free form.
+    // Otherwise existing dots get combined with inserted ones and produce
+    // invalid addresses such as "john..doe@gmail.com".
+    localPart = localPart.replace(/\./g, "");
+
     let variations = new Set();
 
     function addDots(prefix, remaining) {
