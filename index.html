@@ -13,14 +13,14 @@
     <h2> FEA in the url is an abbr for : <a href="https://fadyehabamer.com"> Fady Ehab Amer </a> </h3>
     <div>
         <label for="emailInput">Enter Email:</label>
-        <input type="email" id="emailInput">
+        <input type="email" id="emailInput" autocomplete="email" aria-describedby="errorMsg">
         <section class="controls">
             <button onclick="generateAndDisplayVariations()">Generate Variations</button>
             <button id="exportBtn" onclick="exportToExcel()" disabled>Export to Excel</button>
         </section>
     </div>
 
-    <span id="errorMsg"></span>
+    <p id="errorMsg" role="alert"></p>
 
     <table id="results">
         <!-- The results will be displayed here in table format -->

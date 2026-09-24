@@ -44,9 +44,13 @@ function generateAndDisplayVariations() {
     
     // Email validation
     if (!validateEmail(email)) {
-        alert("Please enter a valid email address!");
+        errorMsg.textContent = "Please enter a valid email address.";
+        emailInput.setAttribute('aria-invalid', 'true');
+        emailInput.focus();
         return;
     }
+    errorMsg.textContent = '';
+    emailInput.removeAttribute('aria-invalid');
 
     let resultsTable = document.getElementById('results');
     let validEmails = generateEmailVariations(email);
