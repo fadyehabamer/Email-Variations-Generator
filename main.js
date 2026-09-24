@@ -54,6 +54,7 @@ function generateAndDisplayVariations() {
     let errorMsg = document.getElementById('errorMsg');
     let statusMsg = document.getElementById('statusMsg');
     let exportBtn = document.getElementById('exportBtn');
+    let exportCsvBtn = document.getElementById('exportCsvBtn');
 
     
     // Email validation
@@ -90,6 +91,7 @@ function generateAndDisplayVariations() {
 
     // Enable the export button
     exportBtn.disabled = false;
+    exportCsvBtn.disabled = false;
 
     currentEmail = email;
     currentVariations = validEmails;
@@ -120,4 +122,29 @@ function exportToExcel() {
     let ws = XLSX.utils.aoa_to_sheet(data);
     XLSX.utils.book_append_sheet(wb, ws, ws_name);
     XLSX.writeFile(wb, "email_variations.xlsx");
+}
+
+function csvField(value) {
+    let text = String(value);
+    return /[",\r\n]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
+}
+
+function buildCsv(email, variations) {
+    let rows = [["Main Email", "New Email"]];
+    variations.forEach(variation => rows.push([email, variation]));
+    return rows.map(row => row.map(csvField).join(",")).join("\r\n") + "\r\n";
+}
+
+function exportToCsv() {
+    if (!currentVariations.length) return;
+
+    let blob = new Blob([buildCsv(currentEmail, currentVariations)], { type: "text/csv;charset=utf-8" });
+    let url = URL.createObjectURL(blob);
+    let link = document.createElement("a");
+    link.href = url;
+    link.download = "email_variations.csv";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 0);
 }
