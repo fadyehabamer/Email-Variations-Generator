@@ -44,6 +44,25 @@ function generateEmailVariations(email, limit = MAX_VARIATIONS) {
     return Array.from(variations);
 }
 
+function parseTags(value) {
+    return value.split(/[\s,]+/).filter(Boolean);
+}
+
+function generatePlusVariations(email, tags, limit = MAX_VARIATIONS) {
+    let [localPart, domain] = email.split("@");
+    let base = localPart.split("+")[0];
+    return Array.from(new Set(tags)).slice(0, limit).map(tag => `${base}+${tag}@${domain}`);
+}
+
+function selectedMode() {
+    let checked = document.querySelector('input[name="mode"]:checked');
+    return checked ? checked.value : "dots";
+}
+
+function updateModeFields() {
+    document.getElementById('tagsField').hidden = selectedMode() !== "plus";
+}
+
 // Email and variations currently shown in the table (used by the export).
 let currentEmail = '';
 let currentVariations = [];
@@ -69,8 +88,28 @@ function generateAndDisplayVariations() {
     emailInput.removeAttribute('aria-invalid');
 
     let resultsTable = document.getElementById('results');
-    let validEmails = generateEmailVariations(email);
-    let total = countEmailVariations(email);
+    let validEmails;
+    let total;
+    let tagsInput = document.getElementById('tagsInput');
+    tagsInput.removeAttribute('aria-invalid');
+
+    if (selectedMode() === "plus") {
+        let tags = parseTags(tagsInput.value);
+        let invalidTags = tags.filter(tag => !/^[a-zA-Z0-9_%-]+$/.test(tag));
+        if (!tags.length || invalidTags.length) {
+            errorMsg.textContent = tags.length
+                ? `Invalid tag(s): ${invalidTags.join(", ")}. Use letters, numbers, "-", "_" or "%".`
+                : "Please enter at least one tag.";
+            tagsInput.setAttribute('aria-invalid', 'true');
+            tagsInput.focus();
+            return;
+        }
+        validEmails = generatePlusVariations(email, tags);
+        total = new Set(tags).size;
+    } else {
+        validEmails = generateEmailVariations(email);
+        total = countEmailVariations(email);
+    }
     statusMsg.textContent = total > validEmails.length
         ? `Showing the first ${validEmails.length.toLocaleString()} of ${total.toLocaleString()} possible variations.`
         : `${validEmails.length.toLocaleString()} variations generated.`;
