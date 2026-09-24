@@ -55,6 +55,7 @@ function generateAndDisplayVariations() {
     let statusMsg = document.getElementById('statusMsg');
     let exportBtn = document.getElementById('exportBtn');
     let exportCsvBtn = document.getElementById('exportCsvBtn');
+    let copyAllBtn = document.getElementById('copyAllBtn');
 
     
     // Email validation
@@ -92,6 +93,8 @@ function generateAndDisplayVariations() {
     // Enable the export button
     exportBtn.disabled = false;
     exportCsvBtn.disabled = false;
+    copyAllBtn.disabled = false;
+    document.getElementById('copyMsg').textContent = '';
 
     currentEmail = email;
     currentVariations = validEmails;
@@ -133,6 +136,35 @@ function buildCsv(email, variations) {
     let rows = [["Main Email", "New Email"]];
     variations.forEach(variation => rows.push([email, variation]));
     return rows.map(row => row.map(csvField).join(",")).join("\r\n") + "\r\n";
+}
+
+async function writeClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return;
+    }
+    let area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    let ok = document.execCommand("copy");
+    area.remove();
+    if (!ok) throw new Error("Copy command was rejected");
+}
+
+async function copyAllVariations() {
+    if (!currentVariations.length) return;
+    let copyMsg = document.getElementById('copyMsg');
+    try {
+        await writeClipboard(currentVariations.join("\n"));
+        copyMsg.textContent = `Copied ${currentVariations.length.toLocaleString()} variations to the clipboard.`;
+    } catch (err) {
+        console.error(err);
+        copyMsg.textContent = "Couldn't copy to the clipboard. Try the CSV export instead.";
+    }
 }
 
 function exportToCsv() {

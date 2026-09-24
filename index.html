@@ -20,12 +20,14 @@
                 <button type="submit">Generate Variations</button>
                 <button type="button" id="exportBtn" onclick="exportToExcel()" disabled>Export to Excel</button>
                 <button type="button" id="exportCsvBtn" onclick="exportToCsv()" disabled>Export to CSV</button>
+                <button type="button" id="copyAllBtn" onclick="copyAllVariations()" disabled>Copy All</button>
             </section>
         </form>
     </div>
 
     <p id="errorMsg" role="alert"></p>
     <p id="statusMsg" role="status"></p>
+    <p id="copyMsg" role="status"></p>
 
     <table id="results">
         <!-- The results will be displayed here in table format -->
