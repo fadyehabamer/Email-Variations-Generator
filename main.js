@@ -31,11 +31,13 @@ function generateEmailVariations(email) {
     return Array.from(variations);
 }
 
-let previouslyGeneratedEmail = '';
+// Email and variations currently shown in the table (used by the export).
+let currentEmail = '';
+let currentVariations = [];
 
 function generateAndDisplayVariations() {
     let emailInput = document.getElementById('emailInput');
-    let email = emailInput.value;
+    let email = emailInput.value.trim();
     let errorMsg = document.getElementById('errorMsg');
     let exportBtn = document.getElementById('exportBtn');
 
@@ -43,12 +45,6 @@ function generateAndDisplayVariations() {
     // Email validation
     if (!validateEmail(email)) {
         alert("Please enter a valid email address!");
-        return;
-    }
-
-    // Check if the email is the same as the previously generated one
-    if (email === previouslyGeneratedEmail) {
-        alert("This email has already been generated!");
         return;
     }
 
@@ -73,11 +69,8 @@ function generateAndDisplayVariations() {
     // Enable the export button
     exportBtn.disabled = false;
 
-    // Set this email as the previously generated one
-    previouslyGeneratedEmail = email;
-
-    // Disable the email input to prevent changing the email
-    emailInput.disabled = true;
+    currentEmail = email;
+    currentVariations = validEmails;
 }
 
 function validateEmail(email) {
@@ -89,8 +82,10 @@ function validateEmail(email) {
 }
 
 function exportToExcel() {
-    let email = document.getElementById('emailInput').value;
-    let validEmails = generateEmailVariations(email);
+    // Export exactly what is displayed, even if the input was edited since.
+    let email = currentEmail;
+    let validEmails = currentVariations;
+    if (!validEmails.length) return;
 
     let wb = XLSX.utils.book_new();
     let ws_name = "EmailVariations";
