@@ -13,12 +13,14 @@
     <h1>Email Variations Generator</h1>
     <p class="subtitle">FEA in the URL is an abbreviation for: <a href="https://fadyehabamer.com">Fady Ehab Amer</a></p>
     <div>
-        <label for="emailInput">Enter Email:</label>
-        <input type="email" id="emailInput" autocomplete="email" aria-describedby="errorMsg">
-        <section class="controls">
-            <button onclick="generateAndDisplayVariations()">Generate Variations</button>
-            <button id="exportBtn" onclick="exportToExcel()" disabled>Export to Excel</button>
-        </section>
+        <form novalidate onsubmit="event.preventDefault(); generateAndDisplayVariations();">
+            <label for="emailInput">Enter Email:</label>
+            <input type="email" id="emailInput" autocomplete="email" aria-describedby="errorMsg">
+            <section class="controls">
+                <button type="submit">Generate Variations</button>
+                <button type="button" id="exportBtn" onclick="exportToExcel()" disabled>Export to Excel</button>
+            </section>
+        </form>
     </div>
 
     <p id="errorMsg" role="alert"></p>
