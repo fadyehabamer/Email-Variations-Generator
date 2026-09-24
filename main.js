@@ -1,4 +1,15 @@
-function generateEmailVariations(email) {
+// The number of variations doubles with every character of the username
+// (2^(n-1)), so a long username would freeze the page. Cap the output; 8192
+// covers every variation of usernames up to 14 characters.
+const MAX_VARIATIONS = 8192;
+
+// Total number of dot variations for an email (may exceed MAX_VARIATIONS).
+function countEmailVariations(email) {
+    let localPart = email.split("@")[0].split("+")[0].replace(/\./g, "");
+    return 2 ** Math.max(localPart.length - 1, 0);
+}
+
+function generateEmailVariations(email, limit = MAX_VARIATIONS) {
     let [localPart, domain] = email.split("@");
 
     // Gmail ignores dots in the username, so start from the dot-free form.
@@ -12,6 +23,8 @@ function generateEmailVariations(email) {
     let variations = new Set();
 
     function addDots(prefix, remaining) {
+        if (variations.size >= limit) return;
+
         if (!remaining) {
             variations.add(prefix + tag + "@" + domain);
             return;
@@ -39,6 +52,7 @@ function generateAndDisplayVariations() {
     let emailInput = document.getElementById('emailInput');
     let email = emailInput.value.trim();
     let errorMsg = document.getElementById('errorMsg');
+    let statusMsg = document.getElementById('statusMsg');
     let exportBtn = document.getElementById('exportBtn');
 
     
@@ -54,6 +68,10 @@ function generateAndDisplayVariations() {
 
     let resultsTable = document.getElementById('results');
     let validEmails = generateEmailVariations(email);
+    let total = countEmailVariations(email);
+    statusMsg.textContent = total > validEmails.length
+        ? `Showing the first ${validEmails.length.toLocaleString()} of ${total.toLocaleString()} possible variations.`
+        : `${validEmails.length.toLocaleString()} variations generated.`;
 
     // Clear previous results
     resultsTable.innerHTML = '';
